@@ -1,5 +1,6 @@
 package com.sky.entity;
 
+import com.alibaba.druid.sql.visitor.functions.Insert;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -41,5 +42,6 @@ public class Employee implements Serializable {
     private Long createUser;
 
     private Long updateUser;
+
 
 }
