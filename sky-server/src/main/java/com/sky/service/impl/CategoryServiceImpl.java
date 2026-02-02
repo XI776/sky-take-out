@@ -1,13 +1,18 @@
 package com.sky.service.impl;
 
+import com.fasterxml.jackson.databind.ser.Serializers;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.CategoryDTO;
 import com.sky.dto.CategoryPageQueryDTO;
 import com.sky.entity.Category;
+import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.CategoryMapper;
+import com.sky.mapper.DishMapper;
+import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
 import com.sky.service.CategoryService;
 import org.springframework.beans.BeanUtils;
@@ -23,10 +28,10 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Autowired
     private CategoryMapper categoryMapper;
-//    @Autowired
-//    private DishMapper dishMapper;
-//    @Autowired
-//    private SetmealMapper setmealMapper;
+    @Autowired
+    private DishMapper dishMapper;
+    @Autowired
+    private SetmealMapper setmealMapper;
     /**
      * 新增分类
      * @param categoryDTO
@@ -53,6 +58,7 @@ public class CategoryServiceImpl implements CategoryService {
     public void update(CategoryDTO categoryDTO) {
         Category category = new Category();
         BeanUtils.copyProperties(categoryDTO,category);
+
         category.setUpdateTime(LocalDateTime.now());
         category.setUpdateUser(BaseContext.getCurrentId());
         categoryMapper.update(category);
@@ -62,20 +68,20 @@ public class CategoryServiceImpl implements CategoryService {
      * 根据 id 删除分类
      * @param id
      */
-    @Override
-    public void deleteById(String id) {
-//        int count = dishMapper.countByCategoryId(id);
-//        if (count > 0) {
-//            // 已关联菜品，不允许删除
-//            throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_DISH);
-//        }
-//
-//        count = setMealMapper.countByCategoryId(id);
-//        if (count > 0) {
-//            throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_SETMEAL);
-//        }
-//
-//        categoryMapper.deleteById(id);
+    public void deleteById(Long id) {
+        Integer count = dishMapper.countByCategoryId(Long.valueOf(id));
+        if (count > 0) {
+            // 当前分类下有菜品，不能删除
+            throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_DISH);
+        }
+
+        count = setmealMapper.countByCategoryId(Long.valueOf(id));
+        if (count > 0) {
+            //当前分类下与菜品，不能删除
+            throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_SETMEAL);
+        }
+
+        categoryMapper.deleteById(id);
     }
 
     /**
@@ -84,7 +90,7 @@ public class CategoryServiceImpl implements CategoryService {
      * @param type
      * @return
      */
-    public Category getCategoryByType(String type) {
+    public List<Category> getCategoryByType(String type) {
         return categoryMapper.selectByType(type);
     }
 
@@ -96,5 +102,23 @@ public class CategoryServiceImpl implements CategoryService {
         List<Category> records = page.getResult();
         return new PageResult(total, records);
     }
+
+    /**
+     * 启用/禁用分类
+     * @param status
+     */
+    public void startOrStop(String status, Long id) {
+        Category category = Category.builder()
+                .id(id)
+                .status(Integer.valueOf(status))
+                .updateUser(BaseContext.getCurrentId())
+                .updateTime(LocalDateTime.now())
+                .build();
+
+        categoryMapper.update(category);
+
+    }
+
+
 
 }

@@ -25,7 +25,7 @@ public interface CategoryService {
      * 根据 id 删除分类
      * @param id
      */
-    void deleteById(String id);
+    void deleteById(Long id);
 
     /**
      * 根据类型查询分类
@@ -33,7 +33,7 @@ public interface CategoryService {
      * @param type
      * @return
      */
-    Category getCategoryByType(String type);
+    List<Category> getCategoryByType(String type);
 
     /**
      * 分类分页查询
@@ -41,4 +41,11 @@ public interface CategoryService {
      * @return
      */
     PageResult pageQuery(CategoryPageQueryDTO categoryPageQueryDTO);
+
+    /**
+     * 启用/禁用分类
+     * @param status
+     */
+    void startOrStop(String status, Long id);
+
 }

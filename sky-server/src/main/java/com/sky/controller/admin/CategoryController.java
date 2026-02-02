@@ -61,10 +61,6 @@ public class CategoryController {
         return Result.success();
     }
 
-    public Result<Category> getByType(String type) {
-        return Result.success();
-    }
-
     /**
      * 根据 id 删除分类
      * @param id
@@ -72,11 +68,13 @@ public class CategoryController {
      */
     @DeleteMapping
     @ApiOperation("根据 id 删除分类")
-    public Result deleteById(String id) {
+    public Result deleteById(Long id) {
         log.info("根据 id 删除分类");
         categoryService.deleteById(id);
         return Result.success();
     }
+
+
 
     /**
      * 根据类型查询分类
@@ -85,9 +83,9 @@ public class CategoryController {
      */
     @GetMapping("/list")
     @ApiOperation("根据类型查询分类")
-    public Result<Category> listByType(String type) {
+    public Result<List<Category>> listByType(String type) {
         log.info("根据类型查询分类, {}", type);
-        Category category = categoryService.getCategoryByType(type);
+        List<Category> category = categoryService.getCategoryByType(type);
         return Result.success(category);
     }
     /**
@@ -110,7 +108,9 @@ public class CategoryController {
      */
     @PostMapping("/status/{status}")
     @ApiOperation("启用/禁用分类")
-    public Result startOrStop(@PathVariable String status) {
+    public Result startOrStop(@PathVariable String status, Long id) {
+        log.info("启用/禁用分类, {}", status);
+        categoryService.startOrStop(status, id);
         return Result.success();
     }
 

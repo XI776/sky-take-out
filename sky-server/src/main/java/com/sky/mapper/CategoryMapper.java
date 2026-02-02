@@ -8,6 +8,8 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 @Mapper
 public interface CategoryMapper {
 
@@ -33,14 +35,14 @@ public interface CategoryMapper {
      * @param id
      */
     @Delete("delete from category where id = #{id}")
-    void deleteById(String id);
+    void deleteById(Long id);
 
     /**
      * 根据类型查询分类
      * @param type
      */
-    @Select("select * from category where type = #{type}")
-    Category selectByType(String type);
+//    @Select("select * from category where type = #{type}")
+    List<Category> selectByType(String type);
 
     /**
      * 分类分页查询
